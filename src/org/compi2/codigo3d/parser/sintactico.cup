@@ -38,77 +38,88 @@ start with inicial;
 
 inicial     ::= {: ControlC3D.reiniciar(); :} expresion:exp 
                     {: 
+                        
                         RESULT = exp;
+                        
                         ControlC3D.agregarC3D("//Último valor: " + exp.getCad());
+                        ControlC3D.agregarC3D("\n"+"//Et.V Lx: " + exp.getEtiquetaTrue());
+                        ControlC3D.agregarC3D("\n"+"//Et.F Ly: " + exp.getEtiquetaFalse());
                     :};
 
 expresion   ::=NOT expresion:der
                     {: 
-                        String temp = ControlC3D.generaTemp();
-                        String c3d = temp + " = " +  " ! " + der.getCad() + ";\n";
-                        ControlC3D.agregarC3D(c3d);
-                        RESULT = new NodoC3D(temp); 
+                        RESULT=der;
+                        String tmpF=der.getEtiquetaFalse();
+                        String tmpT=der.getEtiquetaTrue();
+                        RESULT.setEtiquetaFalse(tmpT);
+                        RESULT.setEtiquetaTrue(tmpF);
                     :}
 
-            |expresion:izq AND expresion:der
+            |expresion:izq AND {: ControlC3D.agregarC3D(izq.getEtiquetaTrue()+":");   :} expresion:der
                     {: 
-                        String temp = ControlC3D.generaTemp();
-                        String c3d = temp + " = " + izq.getCad() + " && " + der.getCad() + ";\n";
-                        ControlC3D.agregarC3D(c3d);
-                        RESULT = new NodoC3D(temp); 
+                        RESULT= new NodoC3D("");
+                        String temp= izq.getEtiquetaFalse()+":"+der.getEtiquetaFalse();
+                        RESULT.setEtiquetaFalse(temp);
+                        RESULT.setEtiquetaTrue(der.getEtiquetaTrue()+":");
                     :}
-            |expresion:izq OR expresion:der
+            |expresion:izq OR {: ControlC3D.agregarC3D(izq.getEtiquetaFalse()+":"); :} expresion:der
                     {: 
-                        String temp = ControlC3D.generaTemp();
-                        String c3d = temp + " = " + izq.getCad() + " || " + der.getCad() + ";\n";
-                        ControlC3D.agregarC3D(c3d);
-                        RESULT = new NodoC3D(temp); 
+                        RESULT= new NodoC3D(""); 
+                        String temp= izq.getEtiquetaTrue()+":"+der.getEtiquetaTrue();   
+                        RESULT.setEtiquetaTrue(temp);
+                        RESULT.setEtiquetaFalse(der.getEtiquetaFalse()+":");
                     :}
-             
-
-
             |expresion:izq MENQ expresion:der
                     {: 
-                        String temp = ControlC3D.generaTemp();
-                        String c3d = temp + " = " + izq.getCad() + " < " + der.getCad() + ";\n";
-                        ControlC3D.agregarC3D(c3d);
-                        RESULT = new NodoC3D(temp); 
+
+                        RESULT = new NodoC3D(""); 
+                        RESULT.setEtiquetaTrue(ControlC3D.genEtiqueta());
+                        RESULT.setEtiquetaFalse(ControlC3D.genEtiqueta());
+                        ControlC3D.agregarC3D("if("+izq.getCad()+"<"+der.getCad()+") goto "+RESULT.getEtiquetaTrue()+"; \n");
+                        ControlC3D.agregarC3D("goto "+ RESULT.getEtiquetaFalse()+ "; \n");
+
+                      
                     :}
             
             |expresion:izq MENIQ expresion:der
                     {: 
-                        String temp = ControlC3D.generaTemp();
-                        String c3d = temp + " = " + izq.getCad() + " <= " + der.getCad() + ";\n";
-                        ControlC3D.agregarC3D(c3d);
-                        RESULT = new NodoC3D(temp); 
+                        RESULT = new NodoC3D(""); 
+                        RESULT.setEtiquetaTrue(ControlC3D.genEtiqueta());
+                        RESULT.setEtiquetaFalse(ControlC3D.genEtiqueta());
+                        ControlC3D.agregarC3D("if("+izq.getCad()+"<="+der.getCad()+") goto "+RESULT.getEtiquetaTrue()+"; \n");
+                        ControlC3D.agregarC3D("goto "+ RESULT.getEtiquetaFalse()+ "; \n");
                     :}
             |expresion:izq MAYQ expresion:der
                     {: 
-                        String temp = ControlC3D.generaTemp();
-                        String c3d = temp + " = " + izq.getCad() + " > " + der.getCad() + ";\n";
-                        ControlC3D.agregarC3D(c3d);
-                        RESULT = new NodoC3D(temp); 
+                        RESULT = new NodoC3D(""); 
+                        RESULT.setEtiquetaTrue(ControlC3D.genEtiqueta());
+                        RESULT.setEtiquetaFalse(ControlC3D.genEtiqueta());
+                        ControlC3D.agregarC3D("if("+izq.getCad()+">"+der.getCad()+") goto "+RESULT.getEtiquetaTrue()+"; \n");
+                        ControlC3D.agregarC3D("goto "+ RESULT.getEtiquetaFalse()+ "; \n");
                     :}
             |expresion:izq MAYIQ expresion:der
                     {: 
-                        String temp = ControlC3D.generaTemp();
-                        String c3d = temp + " = " + izq.getCad() + " >= " + der.getCad() + ";\n";
-                        ControlC3D.agregarC3D(c3d);
-                        RESULT = new NodoC3D(temp); 
+                       RESULT = new NodoC3D(""); 
+                        RESULT.setEtiquetaTrue(ControlC3D.genEtiqueta());
+                        RESULT.setEtiquetaFalse(ControlC3D.genEtiqueta());
+                        ControlC3D.agregarC3D("if("+izq.getCad()+">="+der.getCad()+") goto "+RESULT.getEtiquetaTrue()+"; \n");
+                        ControlC3D.agregarC3D("goto "+ RESULT.getEtiquetaFalse()+ "; \n");
                     :}
             |expresion:izq DIF expresion:der
                     {: 
-                        String temp = ControlC3D.generaTemp();
-                        String c3d = temp + " = " + izq.getCad() + " != " + der.getCad() + ";\n";
-                        ControlC3D.agregarC3D(c3d);
-                        RESULT = new NodoC3D(temp); 
+                       RESULT = new NodoC3D(""); 
+                        RESULT.setEtiquetaTrue(ControlC3D.genEtiqueta());
+                        RESULT.setEtiquetaFalse(ControlC3D.genEtiqueta());
+                        ControlC3D.agregarC3D("if("+izq.getCad()+"!="+der.getCad()+") goto "+RESULT.getEtiquetaTrue()+"; \n");
+                        ControlC3D.agregarC3D("goto "+ RESULT.getEtiquetaFalse()+ "; \n");
                     :}
             |expresion:izq IG_IG expresion:der
                     {: 
-                        String temp = ControlC3D.generaTemp();
-                        String c3d = temp + " = " + izq.getCad() + " == " + der.getCad() + ";\n";
-                        ControlC3D.agregarC3D(c3d);
-                        RESULT = new NodoC3D(temp); 
+                        RESULT = new NodoC3D(""); 
+                        RESULT.setEtiquetaTrue(ControlC3D.genEtiqueta());
+                        RESULT.setEtiquetaFalse(ControlC3D.genEtiqueta());
+                        ControlC3D.agregarC3D("if("+izq.getCad()+"=="+der.getCad()+") goto "+RESULT.getEtiquetaTrue()+"; \n");
+                        ControlC3D.agregarC3D("goto "+ RESULT.getEtiquetaFalse()+ "; \n");
                     :}
             
             |expresion:izq MAS expresion:der
